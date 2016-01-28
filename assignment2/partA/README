@@ -1,0 +1,13 @@
+CMPUT 379 Assignment 2 Part A
+
+Chongyang Ye
+126408
+CSID: cye2
+
+Open terminal type cd to the correct file path
+
+type make, all .o files and exectuable files pktgen and server will be created
+
+to run router type"./router <port number> <routing table file path> <statistics file path> "
+
+to run generator type"./pktgen <port number to connect to router>  <packets file path> "

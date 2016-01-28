@@ -1,0 +1,271 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+
+#define BUFLEN 512
+#define IP 2130706433  /* 127.0.0.1 */
+
+
+struct routing_ref{
+	char ip[32];
+	char bin_ip[50];
+	int prefix_len;
+	char dest[10];
+};
+
+struct routing_ref routing_table[10];
+int stat_data[5]={0,0,0,0,0};
+int ref_cnt=0;
+
+void read_routing_table(char* file_path);
+void extract_ip_to_binary();
+void extract_table_ip_to_binary(int index);
+void extract_ip_to_bin(char bin_ip[50],char ip[32]);
+void dec_to_bin(char target[50],int n);
+void proccess_single_package(char packet[BUFLEN]);
+void cmp_dest_ip(char dest_ip[15]);
+void update_stat_file(char* file_path);
+
+int main(int argc,char** argv){
+	struct sockaddr_in si_this,si_gen;
+	int s,i,slen=sizeof(si_gen);
+	char buffer[BUFLEN];
+
+	if ((s=socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP))==-1 ){
+		printf("Error in creating socket\n");
+		exit(0);
+	}
+
+	memset((char*)&si_this,0,sizeof(si_this));
+	si_this.sin_family=AF_INET;
+	si_this.sin_port=htons(atoi(argv[1]));
+	si_this.sin_addr.s_addr=htonl(IP);
+
+	if (bind(s,(struct sockaddr*)&si_this,sizeof(si_this))==-1){
+		printf("Error in binding the socket\n");
+		exit(0);
+	}
+
+	// Scan the table file
+	read_routing_table(argv[2]);
+	extract_ip_to_binary();
+	// ===================
+	printf("Server listening to %s:%d\n",inet_ntoa(si_this.sin_addr),ntohs(si_this.sin_port));
+	
+	// int test_cnt=0;
+	int turn=1;
+	while(1){
+		if (recvfrom(s,buffer,BUFLEN,0,(struct sockaddr*)&si_gen,&slen)!=-1){
+			// test_cnt++;
+			// printf("%d\n",test_cnt);
+			printf("Received packet from %s:%d  Data: %s\n",inet_ntoa(si_gen.sin_addr), ntohs(si_gen.sin_port),buffer);
+			proccess_single_package(buffer);
+			if(turn%20==0){
+				update_stat_file(argv[3]);
+			}
+			turn++;
+		}
+	}
+	close(s);
+ 	return 0;
+ }
+
+
+void read_routing_table(char* file_path){
+	FILE* fp=fopen(file_path,"r");
+	if(fp==NULL){
+		fprintf(stderr,"Error opening the file\n");
+		exit(0);
+	}
+
+	char line[256];
+
+	while(fgets(line,sizeof(line),fp)){
+		if(line[0]=='\n' || line[0]=='\r' || line[0]=='\0'){
+			continue;
+		}
+		char* pch;
+  		pch=strtok(line," ");
+		int pch_index=0;
+  		while(pch!=NULL){
+			if(pch_index==3){
+				break;
+			}
+			if(pch[strlen(pch)-1]=='\n' || pch[strlen(pch)-1]=='\r'){
+				pch[strlen(pch)-1]='\0';
+			}
+			if(pch_index==0){
+				strcpy(routing_table[ref_cnt].ip,pch);
+			}
+			else if(pch_index==1){
+				routing_table[ref_cnt].prefix_len=atoi(pch);
+			}
+			else if(pch_index==2){
+				strcpy(routing_table[ref_cnt].dest,pch);
+			}
+			//printf("%s\n",pch);
+			pch=strtok(NULL," ");
+			pch_index++;
+  		}
+		ref_cnt++;
+	}
+	fclose(fp);
+}
+
+void extract_ip_to_binary(){
+	int table_index=0;
+	for(table_index=0;table_index<ref_cnt;table_index++){
+		extract_table_ip_to_binary(table_index);
+	}
+}
+
+void extract_table_ip_to_binary(int index){
+	char net_addr[32];
+	memset(net_addr,0,33);
+	strcpy(net_addr,routing_table[index].ip);
+
+	char net_addr_bin[50];
+	memset(net_addr_bin,0,51);
+
+	extract_ip_to_bin(net_addr_bin,net_addr);
+	printf("%s\n",net_addr_bin);
+	
+	strcpy(routing_table[index].bin_ip,net_addr_bin);
+}
+
+void extract_ip_to_bin(char bin_ip[50],char ip[32]){
+	char* pch;
+	pch=strtok(ip,".");
+
+	int pch_index=0;
+	for(pch_index=0;pch_index<4;pch_index++){
+		int frag=atoi(pch);
+		dec_to_bin(bin_ip,frag);
+		pch=strtok(NULL,".");
+	}
+}
+
+
+//Function taken from http://www.programmingsimplified.com/c/source-code/c-program-convert-decimal-to-binary
+
+void dec_to_bin(char target[50],int n){
+	int c=0,k=0;
+ 	for (c = 7; c >= 0; c--){
+    		k = n >> c;
+ 		if (k & 1){
+			strcat(target,"1");
+		}
+    		else{
+			strcat(target,"0");
+		}
+	}
+}
+
+
+void proccess_single_package(char packet[BUFLEN]){
+	char dest_ip[15];
+
+	char* pch;
+	pch=strtok(packet,",");
+	
+	int pch_index=0;
+  	for(pch_index=0;pch_index<5;pch_index++){
+		// if(pch_index==0){
+			// printf("%s\n",pch);
+		// }
+		if(pch_index==2){
+			// printf("%s\n",pch);
+			strcpy(dest_ip,pch);
+		}
+		else if(pch_index==3){
+			// printf("%s\n",pch);
+			int ttl=atoi(pch);
+			ttl--;
+			if(ttl==0){
+				stat_data[0]++;
+			}
+			else{
+				cmp_dest_ip(dest_ip);
+				// printf("%s\n","Not expired.");
+			}
+		}
+		pch=strtok(NULL,",");
+	}
+}
+
+void cmp_dest_ip(char dest_ip[15]){
+	char dest_bin_ip[50];
+	extract_ip_to_bin(dest_bin_ip,dest_ip);
+
+	int bad_dest_ip=1;
+	
+	int table_index=0;
+	for(table_index=0;table_index<ref_cnt;table_index++){
+		// printf("%s\n",dest_bin_ip);
+		// printf("%s\n",routing_table[table_index].bin_ip);
+		// printf("%d\n",routing_table[table_index].prefix_len);
+		// printf("%s\n",routing_table[table_index].dest);
+		if(strncmp(dest_bin_ip,routing_table[table_index].bin_ip,routing_table[table_index].prefix_len)==0){
+			if(strncmp(routing_table[table_index].dest,"0",1)==0){
+				stat_data[2]++;
+			}
+			else if(strncmp(routing_table[table_index].dest,"RouterB",7)==0){
+				stat_data[3]++;
+			}
+			else if(strncmp(routing_table[table_index].dest,"RouterC",7)==0){
+				stat_data[4]++;
+			}
+			bad_dest_ip=0;
+			break;
+		}
+	}
+	
+	if(bad_dest_ip){
+		stat_data[1]++;
+	}
+}
+
+
+void update_stat_file(char* file_path){
+	FILE* fp=fopen(file_path,"w");
+	if(fp==NULL){
+		fprintf(stderr,"Error opening the file\n");
+		exit(0);
+	}
+	fprintf(fp,"Expired packets: %d\n",stat_data[0]);
+	fprintf(fp,"Unroutable packets: %d\n",stat_data[1]);
+	fprintf(fp,"Delivered direct: %d\n",stat_data[2]);
+	fprintf(fp,"Router B: %d\n",stat_data[3]);
+	fprintf(fp,"Router C: %d\n",stat_data[4]);
+	fclose(fp);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

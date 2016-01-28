@@ -1,0 +1,8 @@
+banker: clean banker.o
+	gcc -Wall -std=c99 -o banker banker.o
+
+banker.o: clean banker.c
+	gcc -Wall -std=c99 -c banker.c
+
+clean:
+	rm -f *.o banker

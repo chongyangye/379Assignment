@@ -1,0 +1,5 @@
+expirired packets: 3
+Unroutable packets: 3
+Delivered direct: 0
+Router B: 0
+Router C: 0

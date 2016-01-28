@@ -1,0 +1,5 @@
+memtest:
+	gcc -m32 -o memtest test.c
+
+clean:
+	-rm -f memtest core

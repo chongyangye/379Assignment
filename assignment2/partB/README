@@ -1,0 +1,13 @@
+CMPUT 379 Assignment 2 Part B
+
+Chongyang Ye
+126408
+CSID: cye2
+
+Open terminal type cd to the correct file path
+
+type make, all .o files and exectuable files pktgen and server will be created
+
+to run server type"./file_server 9090 /cshome/cye2/Desktop/379/assignment2/partB/ logfile.txt  "
+
+to run client type"./file_client 127.0.0.1 9090 test.txt "

@@ -1,0 +1,7 @@
+NetA to NetB:1
+NetA to NetC:4
+NetB to NetB:1
+NetB to NetB:6
+NetC to NetB:13
+NetC to NetB:3
+Invalid Destination:6

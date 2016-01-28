@@ -1,0 +1,5 @@
+expired packets: 10
+unroutable packets: 18
+delivered direct: 10
+router B: 7
+router C: 8

@@ -1,0 +1,23 @@
+Contrary to conventional wisdom, new research reveals that it is competition, not climate change, that has a greater impact on the changing composition of forests in Western Canada.
+
+Forests are fundamental to sustaining the global environment, by storing carbon and maintaining biodiversity. But forests in many parts of the world have been undergoing rapid change in the last few decades and the environmental benefits they provide are at risk of declining, according to experts.
+
+Fangliang He, a researcher in the Faculty of Agricultural, Life and Environmental Sciences who is an expert in biodiversity and landscape modelling, and his research team—PhD student Jian Zhang and Shongming Huang, a senior biometrician with Alberta Environment and Sustainable Resource Development—wanted to find out how climate change and competition affected those long-term changes.
+
+He and his team looked at the combined effects of competition and climate change at the same time by studying data compiled over 50 years (1958 to 2009) on 1,680 permanent sample plots in undisturbed natural forests in Western Canada. They found that tree demographic rates have changed markedly over the last five decades.
+
+“We observed a widespread, significant increase in tree mortality, a significant decrease in tree growth and a similar but weaker trend of decreasing recruitment,” said He, adding that these changes varied widely across tree size, forest age, ecological zones and species.
+
+“Competition is the primary factor that is causing the long-term changes in tree mortality, growth and recruitment,” added Zhang. “Regional climate had a weaker yet still significant effect on tree mortality, but little effect on tree growth and recruitment.”
+
+The finding has profound practical implications for sustainable forest management, the authors said.
+
+“Our results imply that, by controlling competition through better practices and regulations to manage the density of forest stands, forest practitioners can improve the growth of forests,” said Huang.
+
+The researchers also said that existing forest growth models developed from competition theory remain the most important and critical management tool for projecting future forests. To cope with climate change, however, future models should consider the dimension of climate, but not overemphasize it.
+
+Climate change is often presumed to be responsible for changes in the forest, with surprisingly little attention being paid to the possible effects of internal factors despite the well-known fact that competition is an important force driving stand dynamics and succession.
+
+The study sends a timely message to the scientific community that the current trend of climate-only studies potentially overlooks other processes important to forest dynamics, and thus could be biased.
+
+“We believe we know why people are more willing to focus on climate change than other processes,” added Huang. “There is no question that climate is increasingly becoming important, and we don’t intend to question the soundness of these works. However, we certainly see the importance of considering the combined effects of competition and climate to form a more complete, balanced understanding of what has happened—and what will likely happen—in the forests.”
